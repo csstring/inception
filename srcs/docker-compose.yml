@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+        nginx:
+                build: ./requirements/nginx/
+                depends_on:
+                        - mariadb
+                tty: true
+                container_name: nginx
+                env_file: .env
+                networks:
+                        - intra
+                ports:
+                        - "443:443"
+                restart: always
+                volumes:
+                        - type: bind
+                          source: /home/schoe/data/wordpress
+                          target: /var/www/html/wordpress
+        mariadb:
+                build: ./requirements/mariadb/
+                container_name: mairadb
+                depends_on:
+                        - wordpress
+                tty: true
+                env_file: .env
+                networks:
+                        - intra
+                restart: always
+                volumes:
+                        - type: bind
+                          source: /home/schoe/data/mariadb
+                          target: /var/lib/mysql
+        wordpress:
+                build: ./requirements/wordpress/
+                container_name: wordpress
+                tty: true
+                networks:
+                        - intra
+                restart: always
+                env_file: .env    
+                volumes:
+                        - type: bind
+                          source: /home/schoe/data/wordpress
+                          target: /var/www/html/wordpress
+networks:
+        intra:
+                driver: bridge
